@@ -32,14 +32,6 @@
 static int debug=0;
 
 
-// Use this to free array memory
-template <typename T>
-void freeAll( T & t ) {
-    T tmp;
-    t.swap( tmp );
-}
-
-
 // Load a PNG File from Disk
 // The pixels are now in the vector "image", 4 bytes per pixel, ordered RGBARGBA
 void loadPNG(const char* filename, std::vector<unsigned char>& image, int& Width, int& Height)
@@ -59,7 +51,7 @@ void loadPNG(const char* filename, std::vector<unsigned char>& image, int& Width
 
 // Save a PNG Image to the supplied filename
 // The image argument has width * height RGBA pixels or width * height * 4 bytes
-void savePNG(const char* filename, std::vector<unsigned char>& image, unsigned width, unsigned height)
+void savePNG(const char* filename, const std::vector<unsigned char>& image, unsigned width, unsigned height)
 {
   //Encode the image
   unsigned error = lodepng::encode(filename, image, width, height);
@@ -71,7 +63,7 @@ void savePNG(const char* filename, std::vector<unsigned char>& image, unsigned w
 
 // Otsu Method for Automatic Thresholding
 // from: http://www.labbookpages.co.uk/software/imgProc/otsuThreshold.html
-int otsu_threshold(std::vector<float>& scaled, int Width, int Height)
+int otsu_threshold(const std::vector<float>& scaled, int Width, int Height)
 {
   // Calculate histogram
   std::vector<int> histogram;
@@ -125,17 +117,16 @@ int otsu_threshold(std::vector<float>& scaled, int Width, int Height)
       threshold = t;
     }
   }
-  freeAll(histogram);
   return threshold;
 }
 
 
 // Calculate the NDVI image from the original IRGB image 
-void calculateNDVI(std::vector<unsigned char>& image, std::vector<float>& ndvi_raw, int Width, int Height)
+void calculateNDVI(const std::vector<unsigned char>& image, std::vector<float>& ndvi_raw, int Width, int Height)
 {
   int irchannel=0;
   int bluechannel=2;
-
+  ndvi_raw.resize(Width*Height);
   // Do the NDVI calculation
   for (int dy=0; dy<Height; dy++){ 
     for (int dx=0; dx<Width; dx++){
@@ -144,7 +135,7 @@ void calculateNDVI(std::vector<unsigned char>& image, std::vector<float>& ndvi_r
       float numerator = (irpixel - bluepixel);
       float denominator = (irpixel + bluepixel);
       float pixel = (numerator / denominator);
-      ndvi_raw.push_back(pixel);
+      ndvi_raw[dy * Width + dx] = pixel;
     }
   }
 
@@ -152,7 +143,7 @@ void calculateNDVI(std::vector<unsigned char>& image, std::vector<float>& ndvi_r
 
 
 // Calculate the minimum and maximum pixel values in an image
-void minMax(std::vector<float>& image, int Width, int Height, float& min, float& max)
+void minMax(const std::vector<float>& image, int Width, int Height, float& min, float& max)
 {
   // Calculate the min and max values:  
   for (int dy=0; dy<Height; dy++){
@@ -168,15 +159,16 @@ void minMax(std::vector<float>& image, int Width, int Height, float& min, float&
 
 
 // Scale a float image into the normal 0-255 greyscale range
-void scaleImage(std::vector<float>& image, std::vector<float>& scaled, int Width, int Height, float min, float max)
+void scaleImage(const std::vector<float>& image, std::vector<float>& scaled, int Width, int Height, float min, float max)
 {
   double data_black = min;
   double data_white = max;
   double range = data_white - data_black;
   
+  scaled.resize(Width*Height);
   for (int dy=0; dy<Height; dy++){
     for (int dx=0; dx<Width; dx++){
-      scaled.push_back( (float) (((image[dy * Width + dx] - data_black)/range) * 255) );
+      scaled[dy * Width + dx] = (float) (((image[dy * Width + dx] - data_black)/range) * 255);
     }
   }
     
@@ -184,7 +176,7 @@ void scaleImage(std::vector<float>& image, std::vector<float>& scaled, int Width
 
 
 // Threshold a greyscale image
-void thresholdImage(std::vector<float>& image, std::vector<int>& bitmap, int Width, int Height, int threshold)
+void thresholdImage(const std::vector<float>& image, std::vector<int>& bitmap, int Width, int Height, int threshold)
 {
   bitmap.resize(Width*Height); // make sure we have space
   for (int dy=0; dy<Height; dy++){
@@ -201,7 +193,7 @@ void thresholdImage(std::vector<float>& image, std::vector<int>& bitmap, int Wid
 
 // Convert a greyscale (0-255) image to RGB
 // Output will be 3 identical channels plus alpha in 4 byte RGBARGBA format
-void greyscale2RGB(std::vector<float>& image, std::vector<unsigned char>& output, int Width, int Height)
+void greyscale2RGB(const std::vector<float>& image, std::vector<unsigned char>& output, int Width, int Height)
 {
   output.resize(Width * Height * 4); // Output image will by 4x bigger than the input
   
@@ -218,7 +210,7 @@ void greyscale2RGB(std::vector<float>& image, std::vector<unsigned char>& output
 
 
 // Reduce the NDVI into a single relative metric by summing over all vegetation pixels
-float sumVegetationIndex(std::vector<float>&ndvi_raw, std::vector<int>& bitmap, int Width, int Height)
+float sumVegetationIndex(const std::vector<float>&ndvi_raw, std::vector<int>& bitmap, int Width, int Height)
 {
   float sumVegIndex = 0.0;
   for (int dy=0; dy<Height; dy++){
@@ -302,8 +294,6 @@ int main(int argc, char **argv) {
     printf("Min NDVI: %f\n", min);
     printf("Max NDVI: %f\n", max);
   }
-  // Now we can free the memory for the input image.
-  freeAll(image);
   
   // Now we need to scale the image in our normal 0-255 range
   // Keep the raw image because we need it later
@@ -325,8 +315,6 @@ int main(int argc, char **argv) {
     
     savePNG(filename2, outputimage, Width, Height);
 
-    freeAll(outputimage);
-    
     if(debug)
       printf("%s Saved\n", filename2);
   }
@@ -341,7 +329,6 @@ int main(int argc, char **argv) {
   thresholdImage(scaled, bitmap, Width, Height, threshold);
   if(debug)
     printf("Thresholding Image\n");
-  freeAll(scaled);
 
   // Loop through the original NVDI Raw image checking against the bitmap and summing the vegetation index over all plant pixels.
   // The higher this value the more overall photosynthesis is going on with the plant.
@@ -351,10 +338,6 @@ int main(int argc, char **argv) {
   else
     printf("%f\n", totalVegIndex); // the main output which can be grabbed clean by a script
 
-  // Now we can free the memory for the raw and bitmap images image.
-  freeAll(ndvi_raw);
-  freeAll(bitmap);
-  
   if(debug)
     printf("Done!\n");
   
