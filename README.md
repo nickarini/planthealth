@@ -42,6 +42,11 @@ The sample image infrablue.png is included in the repository:
 ![infrablue.png](https://github.com/nickarini/planthealth/raw/master/infrablue.png)
 
 
+The output should look like this:
+
+![ndvi.png](https://github.com/nickarini/planthealth/raw/master/ndvi.png)
+
+
 ### Installation:
 
 The only dependency is lodepng which can be found here:
