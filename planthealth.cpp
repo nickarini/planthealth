@@ -193,7 +193,8 @@ void thresholdImage(const std::vector<float>& image, std::vector<int>& bitmap, i
 
 // Convert a greyscale (0-255) image to RGB
 // Output will be 3 identical channels plus alpha in 4 byte RGBARGBA format
-void greyscale2RGB(const std::vector<float>& image, std::vector<unsigned char>& output, int Width, int Height)
+template<typename T>
+void greyscale2RGB(const std::vector<T>& image, std::vector<unsigned char>& output, int Width, int Height)
 {
   output.resize(Width * Height * 4); // Output image will by 4x bigger than the input
   
@@ -227,11 +228,12 @@ float sumVegetationIndex(const std::vector<float>&ndvi_raw, std::vector<int>& bi
 static int help(void)
 {
   fprintf(stderr, 
-	  "Usage: planthealth [-h] [-d] [-o output.png] input.png\n"
+	  "Usage: planthealth [-h] [-d] [-b] [-o output.png] input.png\n"
           "\t-h Display this help message.\n"
           "\t-d Verbose output.\n"
+          "\t-b Output the bitmap image to [output] instead of the NDVI.\n"
           "\t-o Output the Scaled NDVI image to [output].\n"
-          "\t-o Input and Output images must be PNG Format.\n"
+          "\t   Input and Output images must be PNG Format.\n"
           "Nick Arini 2014\n");
   exit(0);
 
@@ -242,16 +244,20 @@ int main(int argc, char **argv) {
   
   int optch;
   int outputFlag=0;
+  int outputBitmap=0;
   char *b_opt_arg;
 
   // command line arguments
-  while ((optch = getopt(argc, argv, ":dho:")) != EOF)
+  while ((optch = getopt(argc, argv, ":dhbo:")) != EOF)
     switch (optch) {
     case 'd':
       debug = 1;
       break;
     case 'h':
       help();
+      break;
+    case 'b':
+      outputBitmap=1;
       break;
     case 'o':
       outputFlag=1;
@@ -272,7 +278,7 @@ int main(int argc, char **argv) {
   if (argc - optind != 1) {
     help();
     exit(1);
-  }
+   }
 
   // Grab the image from file
   //const char* filename = argc > 1 ? argv[1] : "image2.png";
@@ -300,25 +306,6 @@ int main(int argc, char **argv) {
   std::vector<float> scaled;
   scaleImage(ndvi_raw, scaled, Width, Height, min, max);
 
-  // Optional save scaled NDVI image to disk
-  if(outputFlag){
-    const char* filename2 = b_opt_arg; // The optional argument we captured above
-    if(debug)
-      printf("Filename %s\n", filename2);
-
-    std::vector<unsigned char> outputimage;
-    greyscale2RGB(scaled, outputimage, Width, Height);
-    //const char* filename2 = "scaled_NDVI.png";
-    
-    if(debug)
-      printf("Encoding PNG Image %s\n", filename);
-    
-    savePNG(filename2, outputimage, Width, Height);
-
-    if(debug)
-      printf("%s Saved\n", filename2);
-  }
-
   //now do the thresholding 
   int threshold = otsu_threshold(scaled, Width, Height);
   if(debug)
@@ -337,6 +324,29 @@ int main(int argc, char **argv) {
     printf ("Total Vegetation Index: %f\n", totalVegIndex);
   else
     printf("%f\n", totalVegIndex); // the main output which can be grabbed clean by a script
+
+
+ // Optional save scaled NDVI (or bitmap) image to disk
+  if(outputFlag){
+    const char* filename2 = b_opt_arg; // The optional argument we captured above
+    if(debug)
+      printf("Filename %s\n", filename2);
+
+    std::vector<unsigned char> outputimage;
+    if(outputBitmap)
+      greyscale2RGB(bitmap, outputimage, Width, Height);
+    else
+      greyscale2RGB(scaled, outputimage, Width, Height);
+    
+    if(debug)
+      printf("Encoding PNG Image %s\n", filename2);
+    
+    savePNG(filename2, outputimage, Width, Height);
+
+    if(debug)
+      printf("%s Saved\n", filename2);
+  }
+
 
   if(debug)
     printf("Done!\n");

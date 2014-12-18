@@ -22,7 +22,7 @@ http://infragram.org/
 ### Usage: 
 
 This program will take an infrablue image (from a NoIR camera with blue filter) in PNG format.
-It will output a Normalised Difference Vegetation Index (NDVI) Image scaled 0-255
+It will optionally output a Normalised Difference Vegetation Index (NDVI) Image scaled 0-255
 Additionally it will auto threshold this image into vegetation/non vegetation and sum over the NDVI 
 values for the vegetation to produce an overall relative metric for vegetation health/photosynthetic 
 activity
@@ -45,6 +45,16 @@ The sample image infrablue.png is included in the repository:
 The output should look like this:
 
 ![ndvi.png](https://github.com/nickarini/planthealth/raw/master/ndvi.png)
+
+
+To output the thresholded bitmap instead of the scaled NDVI image use the -b flag:
+
+```./planthealth -d -b -o bitmap.png infrablue.png```
+
+
+The bitmap should look like this:
+
+![bitmap.png](https://github.com/nickarini/planthealth/raw/master/bitmap.png)
 
 
 ### Installation:
