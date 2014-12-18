@@ -39,6 +39,8 @@ activity
 
 The sample image infrablue.png is included in the repository:
 
+![infrablue.png](https://github.com/nickarini/planthealth/raw/master/infrablue.png)
+
 
 ### Installation:
 
