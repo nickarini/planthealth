@@ -1,7 +1,6 @@
-bin_PROGRAMS = planthealth
-planthealth_SOURCES = planthealth.cpp lodepng.cpp
-#dist_doc_DATA = README.md
+## top directory
 
-AM_CPPFLAGS = -pedantic -ansi -Wall 
+#Build in these directories:
+SUBDIRS= c++/src 
 
-EXTRA_DIST = infrablue.png
+EXTRA_DIST = resources/infrablue.png resources/ndvi.png resources/bitmap.png
