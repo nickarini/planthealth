@@ -122,10 +122,11 @@ int otsu_threshold(const std::vector<float>& scaled, int Width, int Height)
 
 
 // Calculate the NDVI image from the original IRGB image 
-void calculateNDVI(const std::vector<unsigned char>& image, std::vector<float>& ndvi_raw, int Width, int Height)
+std::vector<float> calculateNDVI(const std::vector<unsigned char>& image, const int Width, const int Height)
 {
   int irchannel=0;
   int bluechannel=2;
+  std::vector<float> ndvi_raw;
   ndvi_raw.resize(Width*Height);
   // Do the NDVI calculation
   for (int dy=0; dy<Height; dy++){ 
@@ -138,12 +139,12 @@ void calculateNDVI(const std::vector<unsigned char>& image, std::vector<float>& 
       ndvi_raw[dy * Width + dx] = pixel;
     }
   }
-
+  return ndvi_raw;
 } 
 
 
 // Calculate the minimum and maximum pixel values in an image
-void minMax(const std::vector<float>& image, int Width, int Height, float& min, float& max)
+void minMax(const std::vector<float>& image, const int Width, const int Height, float& min, float& max)
 {
   // Calculate the min and max values:  
   for (int dy=0; dy<Height; dy++){
@@ -159,25 +160,27 @@ void minMax(const std::vector<float>& image, int Width, int Height, float& min, 
 
 
 // Scale a float image into the normal 0-255 greyscale range
-void scaleImage(const std::vector<float>& image, std::vector<float>& scaled, int Width, int Height, float min, float max)
+std::vector<float> scaleImage(const std::vector<float>& image, const int Width, const int Height, const float min, const float max)
 {
   double data_black = min;
   double data_white = max;
   double range = data_white - data_black;
   
+  std::vector<float> scaled;
   scaled.resize(Width*Height);
   for (int dy=0; dy<Height; dy++){
     for (int dx=0; dx<Width; dx++){
       scaled[dy * Width + dx] = (float) (((image[dy * Width + dx] - data_black)/range) * 255);
     }
   }
-    
+  return scaled;
 }
 
 
 // Threshold a greyscale image
-void thresholdImage(const std::vector<float>& image, std::vector<int>& bitmap, int Width, int Height, int threshold)
+ std::vector<int> thresholdImage(const std::vector<float>& image, const int Width, const int Height, const int threshold)
 {
+  std::vector<int> bitmap;
   bitmap.resize(Width*Height); // make sure we have space
   for (int dy=0; dy<Height; dy++){
     for (int dx=0; dx<Width; dx++){
@@ -187,15 +190,16 @@ void thresholdImage(const std::vector<float>& image, std::vector<int>& bitmap, i
 	bitmap[dy * Width + dx] = 0;
     }
   }
-
+  return bitmap;
 }
 
 
 // Convert a greyscale (0-255) image to RGB
 // Output will be 3 identical channels plus alpha in 4 byte RGBARGBA format
 template<typename T>
-void greyscale2RGB(const std::vector<T>& image, std::vector<unsigned char>& output, int Width, int Height)
+std::vector<unsigned char> greyscale2RGB(const std::vector<T>& image, const int Width, const int Height)
 {
+  std::vector<unsigned char> output;
   output.resize(Width * Height * 4); // Output image will by 4x bigger than the input
   
   for (int dy=0; dy<Height; dy++){
@@ -206,12 +210,12 @@ void greyscale2RGB(const std::vector<T>& image, std::vector<unsigned char>& outp
       output[4 * Width * dy + 4 * dx + 3] =  (unsigned char) 255;
     }
   }
-
+  return output;
 }
 
 
 // Reduce the NDVI into a single relative metric by summing over all vegetation pixels
-float sumVegetationIndex(const std::vector<float>&ndvi_raw, std::vector<int>& bitmap, int Width, int Height)
+float sumVegetationIndex(const std::vector<float>&ndvi_raw, const std::vector<int>& bitmap, const int Width, const int Height)
 {
   float sumVegIndex = 0.0;
   for (int dy=0; dy<Height; dy++){
@@ -290,9 +294,9 @@ int main(int argc, char **argv) {
     printf("Filename %s loaded\n",filename);
   
   // Now calculate the NDVI Image
-  std::vector<float> ndvi_raw; // vector is resized in the function.
+  std::vector<float> ndvi_raw = calculateNDVI(image, Width, Height);
+
   float min=0.0, max=0.0;
-  calculateNDVI(image, ndvi_raw, Width, Height);
   minMax(ndvi_raw, Width, Height, min, max);
 
   if(debug){
@@ -303,8 +307,7 @@ int main(int argc, char **argv) {
   
   // Now we need to scale the image in our normal 0-255 range
   // Keep the raw image because we need it later
-  std::vector<float> scaled;
-  scaleImage(ndvi_raw, scaled, Width, Height, min, max);
+  std::vector<float> scaled = scaleImage(ndvi_raw, Width, Height, min, max);
 
   //now do the thresholding 
   int threshold = otsu_threshold(scaled, Width, Height);
@@ -312,8 +315,7 @@ int main(int argc, char **argv) {
     printf("Calculating Otsu Threshold: %d \n", threshold );
 
   // Apply the threshold to the scaled image to create a bitmap which excludes non-vegetation
-  std::vector<int> bitmap;
-  thresholdImage(scaled, bitmap, Width, Height, threshold);
+  std::vector<int> bitmap = thresholdImage(scaled, Width, Height, threshold);
   if(debug)
     printf("Thresholding Image\n");
 
@@ -334,9 +336,9 @@ int main(int argc, char **argv) {
 
     std::vector<unsigned char> outputimage;
     if(outputBitmap)
-      greyscale2RGB(bitmap, outputimage, Width, Height);
+      outputimage = greyscale2RGB(bitmap, Width, Height);
     else
-      greyscale2RGB(scaled, outputimage, Width, Height);
+      outputimage = greyscale2RGB(scaled, Width, Height);
     
     if(debug)
       printf("Encoding PNG Image %s\n", filename2);
