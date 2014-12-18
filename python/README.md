@@ -39,7 +39,7 @@ Now simply run the script:
 
 This will write the raw images to the output dir with the filenames as the datetime of capture
 
-Stats will be written to the outputstats.csv file. 
+Stats will be written to the defined outputstats file. 
 
 
 
