@@ -40,12 +40,12 @@ activity
 
 The sample image infrablue.png is included in the repository:
 
-![infrablue.png](https://github.com/nickarini/planthealth/raw/master/infrablue.png)
+![infrablue.png](https://github.com/nickarini/planthealth/raw/master/resources/infrablue.png)
 
 
 The output should look like this:
 
-![ndvi.png](https://github.com/nickarini/planthealth/raw/master/ndvi.png)
+![ndvi.png](https://github.com/nickarini/planthealth/raw/master/resources/ndvi.png)
 
 
 To output the thresholded bitmap instead of the scaled NDVI image use the -b flag:
@@ -55,7 +55,7 @@ To output the thresholded bitmap instead of the scaled NDVI image use the -b fla
 
 The bitmap should look like this:
 
-![bitmap.png](https://github.com/nickarini/planthealth/raw/master/bitmap.png)
+![bitmap.png](https://github.com/nickarini/planthealth/raw/master/resources/bitmap.png)
 
 
 ### Installation:
