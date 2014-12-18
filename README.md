@@ -27,11 +27,13 @@ Additionally it will auto threshold this image into vegetation/non vegetation an
 values for the vegetation to produce an overall relative metric for vegetation health/photosynthetic 
 activity
 
-Usage: planthealth [-h] [-d] [-o output.png] input.png
+```
+   Usage: planthealth [-h] [-d] [-o output.png] input.png
 	-h Display this help message.
 	-d Verbose output.
 	-o Output the Scaled NDVI image to [output].
 	   Input and Output images must be PNG Format.
+```
 
 ```./planthealth -d -o ndvi.png infrablue.png```
 
