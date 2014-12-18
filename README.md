@@ -28,9 +28,10 @@ values for the vegetation to produce an overall relative metric for vegetation h
 activity
 
 ```
-   Usage: planthealth [-h] [-d] [-o output.png] input.png
+   Usage: planthealth [-h] [-d] [-b] [-o output.png] input.png
 	-h Display this help message.
 	-d Verbose output.
+	-b Output the bitmap image instead of the NDVI
 	-o Output the Scaled NDVI image to [output].
 	   Input and Output images must be PNG Format.
 ```
