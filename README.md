@@ -47,8 +47,8 @@ It is included here for simplicity.
 
 To Build Type:
 
-```autoreconf --install```
-
-```./configure```
-
-```make install```
+```
+   autoreconf --install
+   ./configure
+   make install
+```
