@@ -36,7 +36,7 @@ activity
 	   Input and Output images must be PNG Format.
 ```
 
-```./planthealth -d -o ndvi.png infrablue.png```
+```planthealth -d -o ndvi.png infrablue.png```
 
 The sample image infrablue.png is included in the repository:
 
