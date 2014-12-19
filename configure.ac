@@ -1,9 +1,13 @@
-AC_INIT([planthealth], [1.0], [bug-automake@gnu.org])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
-AC_PROG_CC
+AC_INIT(planthealth, 1.0, nick.transition@gmail.com)
+AM_INIT_AUTOMAKE
 AC_PROG_CXX
-AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([
- Makefile
-])
-AC_OUTPUT
+AC_CONFIG_AUX_DIR(config)
+AC_CONFIG_SOURCEDIR(c++/src/planthealth.cpp)
+
+AC_INIT_AUTOMAKE
+
+AC_PROG_CXX
+
+AC_OUTPUT(Makefile c++/src/Makefile)
+
+

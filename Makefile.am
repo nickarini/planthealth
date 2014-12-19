@@ -1,6 +1,8 @@
-## top directory
+# top directory
 
-#Build in these directories:
-SUBDIRS= c++/src 
+ACLOCAL_AMFLAGS = -I m4
+SUBDIRS = c++/src
+EXTRA_DIST = autogen.sh
 
-EXTRA_DIST = resources/infrablue.png resources/ndvi.png resources/bitmap.png
+
+#EXTRA_DIST = resources/infrablue.png resources/ndvi.png resources/bitmap.png
