@@ -1,9 +1,9 @@
 AC_INIT(planthealth, 1.0, nick.transition@gmail.com)
 AM_INIT_AUTOMAKE
 AC_PROG_CXX
-AC_CONFIG_SOURCEDIR(c++/src/planthealth.cpp)
+AC_CONFIG_SRCDIR(c++/src/planthealth.cpp)
 
-AC_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE
 
 AC_PROG_CXX
 
