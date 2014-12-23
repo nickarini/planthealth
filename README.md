@@ -36,7 +36,7 @@ activity
 	   Input and Output images must be PNG Format.
 ```
 
-```./planthealth -d -o ndvi.png infrablue.png```
+```planthealth -d -o ndvi.png infrablue.png```
 
 The sample image infrablue.png is included in the repository:
 
@@ -50,7 +50,7 @@ The output should look like this:
 
 To output the thresholded bitmap instead of the scaled NDVI image use the -b flag:
 
-```./planthealth -d -b -o bitmap.png infrablue.png```
+```planthealth -d -b -o bitmap.png infrablue.png```
 
 
 The bitmap should look like this:
@@ -68,7 +68,8 @@ It is included here for simplicity.
 To Build Type:
 
 ```
-   autoreconf --install
-   ./configure
-   make install
+git clone https://github.com/nickarini/planthealth.git
+./autogen.sh
+./configure
+make install
 ```
